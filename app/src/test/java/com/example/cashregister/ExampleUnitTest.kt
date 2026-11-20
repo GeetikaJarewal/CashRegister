@@ -1,4 +1,4 @@
-package com.example.assignment1_cashregister
+package com.example.cashregister
 
 import org.junit.Test
 

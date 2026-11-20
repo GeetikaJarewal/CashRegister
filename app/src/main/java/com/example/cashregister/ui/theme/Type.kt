@@ -1,4 +1,4 @@
-package com.example.assignment1_cashregister.ui.theme
+package com.example.cashregister.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

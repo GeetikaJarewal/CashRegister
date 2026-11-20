@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.assignment1_cashregister"
+    namespace = "com.example.cashregister"
     compileSdk {
         version = release(37)
     }

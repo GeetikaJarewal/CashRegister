@@ -1,4 +1,4 @@
-package com.example.assignment1_cashregister.model
+package com.example.cashregister.model
 
 data class Product( //data class designed to hold data, Product is the name of our class
     val id: Int,    //id is Unique product identification

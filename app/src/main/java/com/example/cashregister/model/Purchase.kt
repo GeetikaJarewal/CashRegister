@@ -1,4 +1,4 @@
-package com.example.assignment1_cashregister.model
+package com.example.cashregister.model
 
 data class Purchase(  //Purchaser can contain multiple products.
     val id: Int,
@@ -7,7 +7,7 @@ data class Purchase(  //Purchaser can contain multiple products.
     val date: String      //date records when the purchase happened
 )
 
-data class CartItem(
+data class CartItem(   //represents  one product inside a transaction, including its quantity
     val product: Product,
     val quantity: Int
 )
