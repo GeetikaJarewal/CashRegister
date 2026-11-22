@@ -16,7 +16,7 @@ import com.example.cashregister.viewmodel.CashRegisterViewModel
 @Composable
 fun MainScreen(
     viewModel: CashRegisterViewModel,
-    onHistoryClick: () -> Unit
+    onManagerClick: () -> Unit
 ) {
     // Observe the ViewModel states
     val products by viewModel.products.collectAsStateWithLifecycle()
@@ -102,10 +102,10 @@ fun MainScreen(
 
         // Navigate to purchase history
         OutlinedButton(
-            onClick = onHistoryClick,
+            onClick = onManagerClick,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("View Purchase History")
+            Text("Manager")
         }
     }
 }

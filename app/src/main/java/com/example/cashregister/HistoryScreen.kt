@@ -11,11 +11,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.cashregister.model.Purchase
 import com.example.cashregister.viewmodel.CashRegisterViewModel
+import androidx.compose.foundation.clickable
 
 @Composable
 fun HistoryScreen(
     viewModel: CashRegisterViewModel,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onPurchaseClick: (Purchase) -> Unit
 ) {
 
     // Observe purchase history
@@ -47,7 +49,27 @@ fun HistoryScreen(
                 modifier = Modifier.weight(1f)
             ) {
                 items(purchases) { purchase ->
-                    PurchaseCard(purchase)
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp)
+                            .clickable {
+                                onPurchaseClick(purchase)
+                            }
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp)
+                        ) {
+                            Text("Purchase #${purchase.id}")
+                            Text("Date: ${purchase.date}")
+
+                            purchase.items.forEach { item ->
+                                Text("${item.product.name} x ${item.quantity}")
+                            }
+
+                            Text("Total: $${"%.2f".format(purchase.total)}")
+                        }
+                    }
                 }
             }
         }

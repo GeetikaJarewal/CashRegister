@@ -1,31 +1,70 @@
+
 package com.example.cashregister.repository
 
 import com.example.cashregister.model.Product
 import com.example.cashregister.model.Purchase
 
-class CashRegisterRepository{
-    private val products = listOf(  //Creates a read-only list of products.
-        Product(1, "Apple", 1.50),
-        Product(2, "Bread", 3.00),
-        Product(3, "Milk",4.00),
-        Product(4, "Bananas", 5.00),
-        Product(5, "Orange Juice", 3.50),
+class CashRegisterRepository {
+
+    // Stores all available products and their stock quantities
+    private val products = mutableListOf(  //mutableListOf creates a list that we cannot modify
+        Product(1, "Apple", 1.50, 20),
+        Product(2, "Bread", 3.00, 15),
+        Product(3, "Milk", 4.00, 10),
+        Product(4, "Bananas", 2.50, 25),
+        Product(5, "Eggs", 5.00, 12),
+        Product(6, "Orange Juice", 3.50, 18)
     )
-    //Stores completed purchases
-    private val purchases = mutableListOf<Purchase>() //Creates a list that we can change.
-    //purchases list must be mutable because customers will meke new purchases.
 
-    //Returns the available products
-    fun getProducts(): List<Product>{  //getProducts() returns products
-        return products
+    // Stores completed purchases
+    private val purchases = mutableListOf<Purchase>()
+
+    // Returns the current product list
+    fun getProducts(): List<Product> {
+        return products.toList()
     }
 
-    fun getPurchases(): List<Purchase>{ //getPurchases() returns completed purchases.
-        return purchases.toList() //Returns a list copy rather than exposing the repository's mutable list directly.
+    // Reduces stock after a successful purchase
+    fun reduceStock(productId: Int, amount: Int): Boolean {
+        val product = products.find { it.id == productId }
+
+        if (product == null || amount <= 0 || amount > product.quantity) {
+            return false
+        }
+
+        val index = products.indexOf(product)
+
+        products[index] = product.copy(
+            quantity = product.quantity - amount
+        )
+
+        return true
     }
 
-    fun addPurchase(purchase: Purchase){  //addPurchase() adds a new transaction.
+    // Adds stock when the manager restocks a product
+    fun restockProduct(productId: Int, amount: Int): Boolean {
+        val product = products.find { it.id == productId }
+
+        if (product == null || amount <= 0) {
+            return false
+        }
+
+        val index = products.indexOf(product)
+
+        products[index] = product.copy(
+            quantity = product.quantity + amount
+        )
+
+        return true
+    }
+
+    // Saves a completed purchase
+    fun addPurchase(purchase: Purchase) {
         purchases.add(purchase)
     }
+
+    // Returns purchase history
+    fun getPurchases(): List<Purchase> {
+        return purchases.toList()
+    }
 }
-//Note: the repository doesn't know anything about buttons or compose. This separation is important in MVVM.

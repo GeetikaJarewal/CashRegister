@@ -1,7 +1,8 @@
 package com.example.cashregister.model
 
-data class Product( //data class designed to hold data, Product is the name of our class
-    val id: Int,    //id is Unique product identification
-    val name: String, //name is Product name
-    val price: Double, // val creates a read only property
+data class Product(
+    val id: Int,
+    val name: String,
+    val price: Double,
+    val quantity: Int
 )

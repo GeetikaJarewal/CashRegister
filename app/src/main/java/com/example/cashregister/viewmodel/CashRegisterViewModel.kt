@@ -15,6 +15,18 @@ class CashRegisterViewModel : ViewModel() { //ViewModel() is the parent class we
    private val _products = MutableStateFlow(repository.getProducts())
    val products: StateFlow<List<Product>> = _products.asStateFlow()
 
+   // Currently selected product
+   private val _selectedProduct = MutableStateFlow<Product?>(null)
+   val selectedProduct: StateFlow<Product?> = _selectedProduct.asStateFlow()
+
+   // Quantity entered using the number keypad
+   private val _enteredQuantity = MutableStateFlow("")
+   val enteredQuantity: StateFlow<String> = _enteredQuantity.asStateFlow()
+
+   // Total price for the selected product
+   private val _cashierTotal = MutableStateFlow(0.0)
+   val cashierTotal: StateFlow<Double> = _cashierTotal.asStateFlow()
+
    //Shopping cart
    private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
    val cartItems: StateFlow<List<CartItem>> = _cartItems.asStateFlow()
@@ -105,4 +117,110 @@ class CashRegisterViewModel : ViewModel() { //ViewModel() is the parent class we
       _cartItems.value = emptyList()
       calculateTotal()
    }
+
+   // Select a product
+   fun selectProduct(product: Product) {
+      _selectedProduct.value = product
+      _enteredQuantity.value = ""
+      _cashierTotal.value = 0.0
+   }
+
+   // Enter a number from the keypad
+   fun enterDigit(digit: String) {
+      if (digit.length != 1 || digit !in "0123456789") return
+
+      val newQuantity = _enteredQuantity.value + digit
+
+      _enteredQuantity.value = newQuantity
+      calculateCashierTotal()
+   }
+
+   // Clear entered quantity
+   fun clearQuantity() {
+      _enteredQuantity.value = ""
+      _cashierTotal.value = 0.0
+   }
+
+   // Calculate cashier total
+   private fun calculateCashierTotal() {
+      val product = _selectedProduct.value
+      val quantity = _enteredQuantity.value.toIntOrNull() ?: 0
+
+      _cashierTotal.value = if (product != null) {
+         product.price * quantity
+      } else {
+         0.0
+      }
+   }
+
+   fun buyProduct(): String {
+
+      val product = _selectedProduct.value
+
+      if (product == null) {
+         return "Please select a product"
+      }
+
+      val quantity = _enteredQuantity.value.toIntOrNull()
+
+      if (quantity == null || quantity <= 0) {
+         return "Please enter a valid quantity"
+      }
+
+      if (quantity > product.quantity) {
+         return "Not enough stock available"
+      }
+
+      // Calculate purchase total
+      val purchaseTotal = product.price * quantity
+
+      // Reduce available stock
+      val success = repository.reduceStock(product.id, quantity)
+
+      if (!success) {
+         return "Unable to complete purchase"
+      }
+
+      // Update the product list displayed by the app
+      _products.value = repository.getProducts()
+
+      // Create purchase record
+      val purchase = Purchase(
+         id = repository.getPurchases().size + 1,
+         items = listOf(CartItem(product, quantity)),
+         total = purchaseTotal,
+         date = java.text.SimpleDateFormat(
+            "yyyy-MM-dd HH:mm",
+            java.util.Locale.getDefault()
+         ).format(java.util.Date())
+      )
+
+      // Save purchase in history
+      repository.addPurchase(purchase)
+      _purchaseHistory.value = repository.getPurchases()
+
+      // Reset cashier screen
+      _selectedProduct.value = null
+      _enteredQuantity.value = ""
+      _cashierTotal.value = 0.0
+
+      return "Purchase successful!"
+   }
+   // Restock an existing product
+   fun restockProduct(productId: Int, amount: Int): Boolean {
+
+      if (amount <= 0) {
+         return false
+      }
+
+      val success = repository.restockProduct(productId, amount)
+
+      if (success) {
+         // Refresh the product list with updated stock
+         _products.value = repository.getProducts()
+      }
+
+      return success
+   }
+
 }
